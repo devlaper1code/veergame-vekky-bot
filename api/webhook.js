@@ -31,7 +31,7 @@ async function telegram(method, body) {
 
     return {
       ok: false,
-      description: "BOT_TOKEN is missing"
+      description: "BOT_TOKEN is missing",
     };
   }
 
@@ -41,9 +41,9 @@ async function telegram(method, body) {
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
       }
     );
 
@@ -57,7 +57,6 @@ async function telegram(method, body) {
     return data;
 
   } catch (error) {
-
     console.error(
       `Telegram ${method} error:`,
       error
@@ -65,14 +64,14 @@ async function telegram(method, body) {
 
     return {
       ok: false,
-      description: error.message
+      description: error.message,
     };
   }
 }
 
 
 // ==========================================
-// SEND ALL WELCOME CONTENT
+// SEND WELCOME CONTENT
 // ==========================================
 
 async function sendWelcome(chatId) {
@@ -84,7 +83,7 @@ async function sendWelcome(chatId) {
 
 
   // ========================================
-  // 1. WELCOME MESSAGE
+  // MESSAGE
   // ========================================
 
   const messageResult = await telegram(
@@ -97,36 +96,34 @@ async function sendWelcome(chatId) {
         "\n\n📢 Main Channel:\n" +
         CHANNEL_LINK,
 
-      disable_web_page_preview: false
+      disable_web_page_preview: false,
     }
   );
 
   console.log(
-    "✅ Welcome message:",
+    "Message result:",
     JSON.stringify(messageResult)
   );
 
 
   // ========================================
-  // 2. VIDEO
+  // VIDEO
   // ========================================
 
   if (VIDEO_FILE_ID) {
 
-    console.log(
-      "🎥 Sending video..."
-    );
+    console.log("🎥 Sending video...");
 
     const videoResult = await telegram(
       "sendVideo",
       {
         chat_id: chatId,
-        video: VIDEO_FILE_ID
+        video: VIDEO_FILE_ID,
       }
     );
 
     console.log(
-      "✅ Video result:",
+      "Video result:",
       JSON.stringify(videoResult)
     );
 
@@ -139,25 +136,23 @@ async function sendWelcome(chatId) {
 
 
   // ========================================
-  // 3. VOICE
+  // VOICE
   // ========================================
 
   if (VOICE_FILE_ID) {
 
-    console.log(
-      "🎤 Sending voice..."
-    );
+    console.log("🎤 Sending voice...");
 
     const voiceResult = await telegram(
       "sendVoice",
       {
         chat_id: chatId,
-        voice: VOICE_FILE_ID
+        voice: VOICE_FILE_ID,
       }
     );
 
     console.log(
-      "✅ Voice result:",
+      "Voice result:",
       JSON.stringify(voiceResult)
     );
 
@@ -170,26 +165,24 @@ async function sendWelcome(chatId) {
 
 
   // ========================================
-  // 4. APK
+  // APK
   // ========================================
 
   if (APK_FILE_ID) {
 
-    console.log(
-      "📦 Sending APK..."
-    );
+    console.log("📦 Sending APK...");
 
     const apkResult = await telegram(
       "sendDocument",
       {
         chat_id: chatId,
         document: APK_FILE_ID,
-        caption: "📦 APK File"
+        caption: "📦 APK File",
       }
     );
 
     console.log(
-      "✅ APK result:",
+      "APK result:",
       JSON.stringify(apkResult)
     );
 
@@ -202,7 +195,7 @@ async function sendWelcome(chatId) {
 
 
   console.log(
-    "🎉 ALL CONTENT SENT TO:",
+    "✅ Welcome process finished:",
     chatId
   );
 }
@@ -218,14 +211,14 @@ async function checkMembership(userId) {
     "getChatMember",
     {
       chat_id: CHANNEL_ID,
-      user_id: userId
+      user_id: userId,
     }
   );
 }
 
 
 // ==========================================
-// /START
+// HANDLE /START
 // ==========================================
 
 async function handleStart(
@@ -244,7 +237,7 @@ async function handleStart(
 
 
   console.log(
-    "Membership:",
+    "Membership result:",
     JSON.stringify(membership)
   );
 
@@ -258,7 +251,7 @@ async function handleStart(
 
         text:
           "⚠️ Membership check failed.\n\n" +
-          "Please try again."
+          "Please try again.",
       }
     );
 
@@ -268,6 +261,12 @@ async function handleStart(
 
   const status =
     membership.result.status;
+
+
+  console.log(
+    "User status:",
+    status
+  );
 
 
   const joined =
@@ -289,10 +288,10 @@ async function handleStart(
 
         text:
           "👋 Welcome!\n\n" +
-          "Please join our main channel first:\n\n" +
+          "📢 Please join our main channel:\n\n" +
           CHANNEL_LINK +
           "\n\n" +
-          "After joining, you will receive the content automatically."
+          "After joining, send /start again.",
       }
     );
 
@@ -303,6 +302,12 @@ async function handleStart(
   // ========================================
   // ALREADY JOINED
   // ========================================
+
+  console.log(
+    "✅ User already joined:",
+    userId
+  );
+
 
   await sendWelcome(chatId);
 }
@@ -316,6 +321,7 @@ export default async function handler(
   req,
   res
 ) {
+
 
   // ========================================
   // GET
@@ -346,7 +352,7 @@ export default async function handler(
 
 
   // ========================================
-  // CHANNEL ID CHECK
+  // CHANNEL CHECK
   // ========================================
 
   if (!CHANNEL_ID) {
@@ -371,12 +377,14 @@ export default async function handler(
     );
 
 
-    // ======================================
+    // ========================================
     // /START
-    // ======================================
+    // ========================================
 
     if (
-      update.message?.text?.startsWith("/start")
+      update.message?.text?.startsWith(
+        "/start"
+      )
     ) {
 
       const chatId =
@@ -393,9 +401,9 @@ export default async function handler(
     }
 
 
-    // ======================================
+    // ========================================
     // JOIN REQUEST
-    // ======================================
+    // ========================================
 
     if (
       update.chat_join_request
@@ -404,10 +412,8 @@ export default async function handler(
       const request =
         update.chat_join_request;
 
-
       const channel =
         request.chat;
-
 
       const user =
         request.from;
@@ -418,10 +424,6 @@ export default async function handler(
         JSON.stringify(request)
       );
 
-
-      // ====================================
-      // CHECK OUR CHANNEL
-      // ====================================
 
       const isOurChannel =
         channel &&
@@ -442,7 +444,7 @@ export default async function handler(
 
 
         // ==================================
-        // APPROVE REQUEST
+        // APPROVE
         // ==================================
 
         const approved =
@@ -450,20 +452,16 @@ export default async function handler(
             "approveChatJoinRequest",
             {
               chat_id: CHANNEL_ID,
-              user_id: user.id
+              user_id: user.id,
             }
           );
 
 
         console.log(
-          "✅ Approval result:",
+          "Approval result:",
           JSON.stringify(approved)
         );
 
-
-        // ==================================
-        // DIRECTLY SEND CONTENT
-        // ==================================
 
         if (approved.ok) {
 
@@ -473,9 +471,7 @@ export default async function handler(
           );
 
 
-          // NO "SEND /START" MESSAGE
-          // DIRECTLY SEND CONTENT
-
+          // Try sending welcome content
           await sendWelcome(
             user.id
           );
@@ -491,9 +487,9 @@ export default async function handler(
     }
 
 
-    // ======================================
-    // CHANNEL MEMBER UPDATE
-    // ======================================
+    // ========================================
+    // DIRECT CHANNEL MEMBER JOIN
+    // ========================================
 
     if (
       update.chat_member &&
@@ -522,6 +518,12 @@ export default async function handler(
           .old_chat_member?.status;
 
 
+      console.log(
+        "📢 Channel member update:",
+        JSON.stringify(memberUpdate)
+      );
+
+
       const isOurChannel =
         String(
           memberUpdate.chat.id
@@ -532,7 +534,7 @@ export default async function handler(
       const memberStatuses = [
         "member",
         "administrator",
-        "creator"
+        "creator",
       ];
 
 
@@ -546,18 +548,6 @@ export default async function handler(
         );
 
 
-      console.log(
-        "Channel member update:",
-        JSON.stringify(memberUpdate)
-      );
-
-
-      // IMPORTANT:
-      // Don't send duplicate welcome here.
-      //
-      // Join-request approval already
-      // sends the welcome content above.
-
       if (
         becameMember &&
         joinedUser &&
@@ -565,20 +555,25 @@ export default async function handler(
       ) {
 
         console.log(
-          "ℹ️ Member approved:",
+          "🎉 NEW MEMBER:",
           joinedUser.id
         );
 
-        console.log(
-          "ℹ️ Welcome was already handled by join request."
+
+        // ==================================
+        // SEND CONTENT
+        // ==================================
+
+        await sendWelcome(
+          joinedUser.id
         );
       }
     }
 
 
-    // ======================================
+    // ========================================
     // SUCCESS
-    // ======================================
+    // ========================================
 
     return res
       .status(200)
